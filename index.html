@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deploy Test — Calculator & Coin Toss</title>
+  <style>
+    /* --------- Basic reset & layout --------- */
+    :root {
+      --bg: #0f172a;
+      --card: #0b1220;
+      --accent: #7c3aed;
+      --muted: #94a3b8;
+      --glass: rgba(255,255,255,0.03);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071026 0%, #071b2b 100%);
+      color: #e6eef6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 24px rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+      min-height: 280px;
+    }
+
+    header.site {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    header.site h1 { margin: 6px 0 0; font-size: 20px; letter-spacing: 0.4px; }
+    header.site p { margin: 4px 0 12px; color: var(--muted); font-size: 13px; }
+
+    /* ---------- Calculator styles ---------- */
+    .calc {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .display {
+      background: var(--glass);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 20px;
+      text-align: right;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      color: #f8fafc;
+      letter-spacing: 0.6px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 8px;
+    }
+    button.key {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color: #e6eef6;
+      box-shadow: 0 3px 10px rgba(2,6,23,0.5);
+    }
+    button.key.op { background: linear-gradient(180deg,#6d28d9, #5b21b6); }
+    button.key.wide { grid-column: span 2; }
+
+    /* ---------- Coin toss styles ---------- */
+    .coin-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      text-align: center;
+    }
+    .coin {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+                  linear-gradient(180deg, #f59e0b, #b45309 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 24px;
+      color: #0b1220;
+      box-shadow: 0 12px 30px rgba(11,17,32,0.6);
+      transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(.2,.9,.3,1);
+      user-select: none;
+    }
+    .coin.tossing {
+      transition: transform 1s cubic-bezier(.2,.9,.3,1);
+      transform: rotateX(720deg) rotateY(360deg);
+    }
+    .result {
+      font-size: 18px;
+      color: #e6eef6;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 820px) {
+      .wrapper { grid-template-columns: 1fr; }
+    }
+
+    /* Helpful little footer */
+    footer.note {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header class="site">
+      <h1>Deployment Test Page</h1>
+      <p>Two small widgets (calculator & coin toss) in one file — save as <code>index.html</code> and deploy.</p>
+    </header>
+
+    <!-- CALCULATOR -->
+    <section class="card calc" aria-labelledby="calc-title">
+      <h2 id="calc-title">Simple Calculator</h2>
+      <div class="display" id="display" aria-live="polite">0</div>
+
+      <div class="buttons" role="group" aria-label="Calculator buttons">
+        <button class="key" data-val="7">7</button>
+        <button class="key" data-val="8">8</button>
+        <button class="key" data-val="9">9</button>
+        <button class="key op" data-op="/">÷</button>
+
+        <button class="key" data-val="4">4</button>
+        <button class="key" data-val="5">5</button>
+        <button class="key" data-val="6">6</button>
+        <button class="key op" data-op="*">×</button>
+
+        <button class="key" data-val="1">1</button>
+        <button class="key" data-val="2">2</button>
+        <button class="key" data-val="3">3</button>
+        <button class="key op" data-op="-">−</button>
+
+        <button class="key" data-val="0">0</button>
+        <button class="key" data-val=".">.</button>
+        <button class="key" id="clear">C</button>
+        <button class="key op" data-op="+">+</button>
+
+        <button class="key wide op" id="equals">=</button>
+        <button class="key" id="back">⌫</button>
+      </div>
+      <div class="muted">Supports decimals. Try basic arithmetic and '='.</div>
+    </section>
+
+    <!-- COIN TOSS -->
+    <section class="card coin-area" aria-labelledby="coin-title">
+      <h2 id="coin-title">Coin Toss</h2>
+      <div class="coin" id="coin" role="img" aria-label="coin showing heads">Heads</div>
+      <div class="result" id="coin-result">Ready to toss</div>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button class="key" id="toss">Toss Coin</button>
+        <button class="key" id="best-of" title="Flip multiple times">Best of 3</button>
+      </div>
+      <div class="muted">Click "Toss Coin" to flip once. "Best of 3" flips three times and shows winner.</div>
+    </section>
+
+    <footer class="note">
+      Save this file as <code>index.html</code>. Open locally or push to your Azure static site to test deployment.
+    </footer>
+  </div>
+
+  <script>
+    /* ---------- Calculator logic ---------- */
+    (function(){
+      const display = document.getElementById('display');
+      let current = '0';
+      let lastResult = null;
+      let locked = false; // prevents entering while calculating
+
+      function update() {
+        display.textContent = current;
+      }
+
+      function append(char) {
+        if (locked) return;
+        if (current === '0' && char !== '.') current = char;
+        else current += char;
+        update();
+      }
+
+      function clearAll() {
+        current = '0';
+        lastResult = null;
+        update();
+      }
+
+      function backspace() {
+        if (locked) return;
+        if (current.length <= 1) current = '0';
+        else current = current.slice(0,-1);
+        update();
+      }
+
+      function safeEval(expr) {
+        // minimal safety: only allow digits, operators, dot, parentheses, spaces
+        if (!/^[0-9+\-*/().\s]+$/.test(expr)) throw new Error('Invalid characters');
+        // Prevent misuse of leading zeros etc. We'll rely on JS eval for simple arithmetic
+        // Evaluate but guard divide-by-zero:
+        const result = Function('"use strict"; return (' + expr + ')')();
+        if (!isFinite(result)) throw new Error('Math error (e.g. division by zero)');
+        return result;
+      }
+
+      document.querySelectorAll('.buttons button.key').forEach(btn=>{
+        const v = btn.getAttribute('data-val');
+        const op = btn.getAttribute('data-op');
+        btn.addEventListener('click', ()=>{
+          if (v !== null) {
+            append(v);
+          } else if (op !== null) {
+            // insert operator with spacing for readability
+            if (/[+\-*/]$/.test(current)) {
+              // replace previous operator
+              current = current.slice(0,-1) + op;
+            } else {
+              current += op;
+            }
+            update();
+          }
+        });
+      });
+
+      document.getElementById('clear').addEventListener('click', clearAll);
+      document.getElementById('back').addEventListener('click', backspace);
+      document.getElementById('equals').addEventListener('click', ()=>{
+        if (locked) return;
+        locked = true;
+        try {
+          const res = safeEval(current);
+          lastResult = res;
+          current = String(res);
+        } catch (e) {
+          current = 'Error';
+        }
+        update();
+        setTimeout(()=> locked = false, 300);
+      });
+
+      // keyboard support (basic)
+      window.addEventListener('keydown', (e)=>{
+        if (e.key.match(/^[0-9]$/)) append(e.key);
+        else if (e.key === '.') append('.');
+        else if (['+','-','*','/'].includes(e.key)) {
+          if (/[+\-*/]$/.test(current)) current = current.slice(0,-1) + e.key;
+          else current += e.key;
+          update();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('equals').click();
+        } else if (e.key === 'Backspace') backspace();
+        else if (e.key === 'Escape') clearAll();
+      });
+
+      update();
+    })();
+
+    /* ---------- Coin toss logic ---------- */
+    (function(){
+      const coin = document.getElementById('coin');
+      const result = document.getElementById('coin-result');
+      const tossBtn = document.getElementById('toss');
+      const bestOfBtn = document.getElementById('best-of');
+
+      function randomFace() {
+        return Math.random() < 0.5 ? 'Heads' : 'Tails';
+      }
+
+      function showFace(face) {
+        coin.textContent = face;
+        coin.setAttribute('aria-label', 'coin showing ' + face.toLowerCase());
+        result.textContent = 'Result: ' + face;
+      }
+
+      function animateAndSet(face, duration=900) {
+        // add tossing class to animate transform, then set a result after the animation
+        coin.classList.add('tossing');
+        // small timeout to allow CSS transition
+        setTimeout(()=>{
+          coin.classList.remove('tossing');
+          // small delay to sync with transition end
+          setTimeout(()=> showFace(face), 220);
+        }, duration);
+      }
+
+      tossBtn.addEventListener('click', ()=>{
+        tossBtn.disabled = true;
+        const face = randomFace();
+        animateAndSet(face);
+        setTimeout(()=> tossBtn.disabled = false, 1200);
+      });
+
+      bestOfBtn.addEventListener('click', async ()=>{
+        bestOfBtn.disabled = true;
+        tossBtn.disabled = true;
+        let heads = 0, tails = 0;
+        result.textContent = 'Best of 3: flipping...';
+        for (let i=0;i<3;i++) {
+          const face = randomFace();
+          animateAndSet(face);
+          if (face === 'Heads') heads++; else tails++;
+          // wait between flips
+          await new Promise(r=>setTimeout(r, 1100));
+        }
+        const winner = heads > tails ? 'Heads' : (tails > heads ? 'Tails' : 'Tie');
+        result.textContent = (winner === 'Tie') ? `Tie (${heads}-${tails})` : `Winner: ${winner} (${heads}-${tails})`;
+        bestOfBtn.disabled = false;
+        tossBtn.disabled = false;
+      });
+
+    })();
+  </script>
+</body>
+</html>
