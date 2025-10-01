@@ -1,0 +1,22 @@
+name: Deploy static site to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Upload files to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: sparsh-webapp   # <-- your Azure Web App name
+          slot-name: production
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: .
